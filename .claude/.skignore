@@ -1,0 +1,7 @@
+# Re-include Next.js bundled docs only (AGENTS.md requires reading them for this
+# breaking-changes Next.js version). Rest of node_modules stays ignored.
+!node_modules/
+!node_modules/next/
+!node_modules/next/dist/
+!node_modules/next/dist/docs/
+!node_modules/next/dist/docs/**

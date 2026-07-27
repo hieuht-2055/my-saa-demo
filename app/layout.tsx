@@ -27,6 +27,22 @@ export default function RootLayout({
       lang="en"
       className={`${geistSans.variable} ${geistMono.variable} h-full antialiased`}
     >
+      <head>
+        {/*
+          Canonicalize the host to 127.0.0.1 in the browser. The Supabase
+          session cookie is bound to one origin, and the browser treats
+          `localhost` and `127.0.0.1` as different domains. The server cannot
+          reliably redirect between hosts in dev, so this pre-hydration script
+          bounces any `localhost` visit to `127.0.0.1` (same port/path/query)
+          before anything renders. No-op on any other host (incl. production).
+        */}
+        <script
+          dangerouslySetInnerHTML={{
+            __html:
+              "if(location.hostname==='localhost'){location.replace(location.href.replace('//localhost','//127.0.0.1'))}",
+          }}
+        />
+      </head>
       <body className="min-h-full flex flex-col">{children}</body>
     </html>
   );
