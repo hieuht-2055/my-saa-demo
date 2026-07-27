@@ -1,7 +1,10 @@
+"use client";
+
 import Image from "next/image";
 import Countdown from "./countdown";
 import CtaButton from "./cta-button";
 import EventInfo from "./event-info";
+import { useT } from "@/lib/i18n/locale-provider";
 
 interface HeroSectionProps {
   eventTargetDate: Date | null;
@@ -10,6 +13,8 @@ interface HeroSectionProps {
 // mm:2167:9027 (keyvisual) + mm:2167:9029 (gradient cover) + mm:2167:9030
 // (content) — full-bleed key-visual with the countdown, event info, and CTAs.
 export default function HeroSection({ eventTargetDate }: HeroSectionProps) {
+  const t = useT("home");
+
   return (
     <section
       className="relative w-full overflow-hidden bg-cover bg-top"
@@ -46,8 +51,8 @@ export default function HeroSection({ eventTargetDate }: HeroSectionProps) {
 
         {/* mm:2167:9062 */}
         <div className="flex flex-wrap items-start gap-10">
-          <CtaButton href="/awards" label="ABOUT AWARDS" variant="primary" />
-          <CtaButton href="/kudos" label="ABOUT KUDOS" variant="secondary" />
+          <CtaButton href="/he-thong-giai" label={t("cta.aboutAwards")} variant="primary" />
+          <CtaButton href="/kudos" label={t("cta.aboutKudos")} variant="secondary" />
         </div>
       </div>
     </section>

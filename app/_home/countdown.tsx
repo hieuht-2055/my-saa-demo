@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import CountdownUnit from "./countdown-unit";
+import { useT } from "@/lib/i18n/locale-provider";
 
 interface CountdownProps {
   /** Event start time. `null`/invalid falls back to a static 00 00 00. */
@@ -40,6 +41,7 @@ function computeRemaining(targetDate: Date | null): Remaining {
 // every second on the client only; the target date comes in as a prop so
 // this component has no knowledge of where it's configured (Track B env var).
 export default function Countdown({ targetDate }: CountdownProps) {
+  const t = useT("common");
   const [remaining, setRemaining] = useState<Remaining>(() => computeRemaining(targetDate));
 
   useEffect(() => {
@@ -58,14 +60,14 @@ export default function Countdown({ targetDate }: CountdownProps) {
       {/* mm:2167:9036 */}
       {!remaining.reached && (
         <p className="[font-family:var(--font-montserrat)] text-2xl font-bold leading-8 text-white">
-          Comming soon
+          {t("countdown.comingSoon")}
         </p>
       )}
       {/* mm:2167:9037 */}
       <div className="flex items-center gap-10">
-        <CountdownUnit value={remaining.days} label="DAYS" />
-        <CountdownUnit value={remaining.hours} label="HOURS" />
-        <CountdownUnit value={remaining.minutes} label="MINUTES" />
+        <CountdownUnit value={remaining.days} label={t("countdown.days")} />
+        <CountdownUnit value={remaining.hours} label={t("countdown.hours")} />
+        <CountdownUnit value={remaining.minutes} label={t("countdown.minutes")} />
       </div>
     </div>
   );

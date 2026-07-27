@@ -2,6 +2,7 @@
 
 import { IconUserProfile } from "./icons";
 import { useDismissableMenu } from "./use-dismissable-menu";
+import { useT } from "@/lib/i18n/locale-provider";
 
 interface AccountMenuProps {
   userEmail: string | null;
@@ -12,6 +13,7 @@ interface AccountMenuProps {
 // mm:I2167:9091;186:1597 — avatar button. Opens Profile / Sign out / (Admin
 // Dashboard, admin-only) on click; closes on outside click / Escape.
 export default function AccountMenu({ userEmail, isAdmin, onSignOut }: AccountMenuProps) {
+  const t = useT("common");
   const { isOpen, setIsOpen, containerRef } = useDismissableMenu<HTMLDivElement>();
 
   return (
@@ -21,7 +23,7 @@ export default function AccountMenu({ userEmail, isAdmin, onSignOut }: AccountMe
         onClick={() => setIsOpen((prev) => !prev)}
         aria-haspopup="menu"
         aria-expanded={isOpen}
-        aria-label="Tài khoản"
+        aria-label={t("account.ariaLabel")}
         className="flex h-10 w-10 items-center justify-center rounded border border-[#998C5F] text-white transition-colors hover:bg-white/10"
       >
         <IconUserProfile width={24} height={24} />
@@ -43,7 +45,7 @@ export default function AccountMenu({ userEmail, isAdmin, onSignOut }: AccountMe
             role="menuitem"
             className="block px-4 py-2 text-left text-sm font-bold text-white transition-colors hover:bg-white/10 [font-family:var(--font-montserrat)]"
           >
-            Profile
+            {t("account.profile")}
           </a>
           {isAdmin && (
             // INTEGRATION POINT (Track B): route to real admin dashboard
@@ -52,7 +54,7 @@ export default function AccountMenu({ userEmail, isAdmin, onSignOut }: AccountMe
               role="menuitem"
               className="block px-4 py-2 text-left text-sm font-bold text-white transition-colors hover:bg-white/10 [font-family:var(--font-montserrat)]"
             >
-              Admin Dashboard
+              {t("account.adminDashboard")}
             </a>
           )}
           <button
@@ -64,7 +66,7 @@ export default function AccountMenu({ userEmail, isAdmin, onSignOut }: AccountMe
             }}
             className="block w-full cursor-pointer px-4 py-2 text-left text-sm font-bold text-white transition-colors hover:bg-white/10 [font-family:var(--font-montserrat)]"
           >
-            Sign out
+            {t("account.signOut")}
           </button>
         </div>
       )}

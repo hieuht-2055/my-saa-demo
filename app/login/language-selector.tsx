@@ -2,29 +2,21 @@
 
 import Image from "next/image";
 import { useState } from "react";
-import type { Locale } from "./login-screen";
-
-interface LanguageSelectorProps {
-  locale: Locale;
-  onLocaleChange: (locale: Locale) => void;
-}
+import { useLocale } from "@/lib/i18n/locale-provider";
+import { LOCALES, type Locale } from "@/lib/i18n/config";
 
 const LOCALE_LABEL: Record<Locale, string> = { vi: "VN", en: "EN" };
-const LOCALE_OPTIONS: Locale[] = ["vi", "en"];
 
 /**
- * Header language selector — VN flag + code + chevron, opens a VN/EN
- * dropdown on click. Only local UI state (open/closed) is owned here;
- * actually switching the app's locale is deferred (Track B / i18n later).
+ * Login header language selector — VN flag + code + chevron, opens a VN/EN
+ * dropdown on click. Reads/writes the active locale from the i18n context.
  */
-export default function LanguageSelector({
-  locale,
-  onLocaleChange,
-}: LanguageSelectorProps) {
+export default function LanguageSelector() {
+  const { locale, setLocale } = useLocale();
   const [isOpen, setIsOpen] = useState(false);
 
   function selectLocale(next: Locale) {
-    onLocaleChange(next);
+    setLocale(next);
     setIsOpen(false);
   }
 
@@ -57,7 +49,7 @@ export default function LanguageSelector({
           role="listbox"
           className="absolute right-0 top-full z-10 mt-2 w-[108px] overflow-hidden rounded bg-[#0B0F12] shadow-lg"
         >
-          {LOCALE_OPTIONS.map((code) => (
+          {LOCALES.map((code) => (
             <li key={code}>
               <button
                 type="button"

@@ -1,13 +1,37 @@
 import { createServerClient } from '@supabase/ssr'
 import { NextResponse, type NextRequest } from 'next/server'
+import { getEventDate } from '@/lib/event-config'
 
 /** Routes reachable without an authenticated session. */
-const PUBLIC_PATHS = ['/', '/login']
+const PUBLIC_PATHS = ['/', '/login', '/prelaunch']
 
 function isPublic(pathname: string): boolean {
   if (PUBLIC_PATHS.includes(pathname)) return true
   // Auth callback / OAuth exchange must stay reachable while signed out.
   return pathname.startsWith('/auth')
+}
+
+/**
+ * True once the event start time has passed. A missing/invalid event date
+ * returns `true` (fail-open) so a misconfigured env never locks the whole
+ * site behind the countdown.
+ */
+function hasEventStarted(): boolean {
+  const eventDate = getEventDate()
+  if (!eventDate) return true
+  return Date.now() >= eventDate.getTime()
+}
+
+/**
+ * Paths that stay reachable while the site is in prelaunch lockdown — the
+ * countdown page itself, plus login/OAuth so authentication still works.
+ */
+function reachableDuringPrelaunch(pathname: string): boolean {
+  return (
+    pathname === '/prelaunch' ||
+    pathname === '/login' ||
+    pathname.startsWith('/auth')
+  )
 }
 
 /**
@@ -46,6 +70,16 @@ export async function updateSession(request: NextRequest) {
   } = await supabase.auth.getUser()
 
   const path = request.nextUrl.pathname
+
+  // Prelaunch lockdown: before the event starts, funnel every route to the
+  // countdown page; once it starts, send the countdown page into the site.
+  if (!hasEventStarted()) {
+    if (!reachableDuringPrelaunch(path)) {
+      return redirectPreservingCookies(request, supabaseResponse, '/prelaunch')
+    }
+  } else if (path === '/prelaunch') {
+    return redirectPreservingCookies(request, supabaseResponse, '/')
+  }
 
   // Unauthenticated user on a protected route -> /login
   if (!user && !isPublic(path)) {

@@ -1,4 +1,7 @@
+"use client";
+
 import Image from "next/image";
+import { useT } from "@/lib/i18n/locale-provider";
 
 interface GoogleLoginButtonProps {
   isLoading: boolean;
@@ -6,14 +9,15 @@ interface GoogleLoginButtonProps {
 }
 
 /**
- * Presentational Google sign-in button. Purely UI — the click handler is
- * supplied by the parent (login-screen.tsx), which currently stubs the
- * actual OAuth call. No auth logic lives here.
+ * Presentational Google sign-in button. The click handler is supplied by the
+ * parent (login-screen.tsx), which drives the Supabase OAuth call.
  */
 export default function GoogleLoginButton({
   isLoading,
   onClick,
 }: GoogleLoginButtonProps) {
+  const t = useT("login");
+
   return (
     <button
       type="button"
@@ -37,7 +41,7 @@ export default function GoogleLoginButton({
         />
       )}
       <span className="[font-family:var(--font-montserrat)] text-[22px] font-bold leading-[28px] text-[#00101A]">
-        {isLoading ? "Signing in…" : "LOGIN With Google"}
+        {isLoading ? t("googleLoading") : t("googleIdle")}
       </span>
     </button>
   );

@@ -1,10 +1,15 @@
+"use client";
+
 import Image from "next/image";
 import Link from "next/link";
 import { IconArrowUpRight } from "./icons";
+import { useT } from "@/lib/i18n/locale-provider";
 
 // mm:3390:10349 — "Sun* Kudos" promo card: background photo, label/title/
 // description, "Chi tiết" CTA, and the Kudos logotype graphic.
 export default function KudosSection() {
+  const t = useT("home");
+
   return (
     <section className="mx-auto w-full max-w-[1224px] px-6 sm:px-16 lg:px-36">
       <div className="relative flex w-full items-center overflow-hidden rounded-2xl bg-[#0F0F0F] px-6 py-16 sm:px-16 lg:px-[68px] lg:py-20">
@@ -22,20 +27,17 @@ export default function KudosSection() {
           <div className="flex flex-col items-start gap-4">
             {/* mm:I3390:10349;313:8421 */}
             <p className="[font-family:var(--font-montserrat)] text-2xl font-bold leading-8 text-white">
-              Phong trào ghi nhận
+              {t("kudos.label")}
             </p>
             {/* mm:I3390:10349;313:8422 */}
             <h2 className="[font-family:var(--font-montserrat)] text-[clamp(32px,5vw,57px)] font-bold leading-tight tracking-[-0.25px] text-[#FFEA9E]">
-              Sun* Kudos
+              {t("kudos.title")}
             </h2>
             {/* mm:I3390:10349;313:8423 */}
             <p className="text-justify [font-family:var(--font-montserrat)] text-base font-bold leading-6 tracking-[0.5px] text-white">
-              ĐIỂM MỚI CỦA SAA 2025
+              {t("kudos.new")}
               <br />
-              Hoạt động ghi nhận và cảm ơn đồng nghiệp - lần đầu tiên được diễn ra dành cho tất cả
-              Sunner. Hoạt động sẽ được triển khai vào tháng 11/2025, khuyến khích người Sun* chia
-              sẻ những lời ghi nhận, cảm ơn đồng nghiệp trên hệ thống do BTC công bố. Đây sẽ là
-              chất liệu để Hội đồng Heads tham khảo trong quá trình lựa chọn người đạt giải.
+              {t("kudos.body")}
             </p>
           </div>
 
@@ -44,7 +46,7 @@ export default function KudosSection() {
             href="/kudos"
             className="flex items-center gap-2 rounded bg-[#FFEA9E] px-4 py-4 [font-family:var(--font-montserrat)] text-base font-bold leading-6 tracking-[0.15px] text-[#00101A] transition-colors duration-200 hover:brightness-105"
           >
-            Chi tiết
+            {t("kudos.cta")}
             <IconArrowUpRight width={24} height={24} />
           </Link>
         </div>

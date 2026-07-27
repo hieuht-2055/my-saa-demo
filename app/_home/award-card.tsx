@@ -1,15 +1,23 @@
+"use client";
+
 import Image from "next/image";
 import Link from "next/link";
 import { IconArrowUpRight } from "./icons";
 import type { AwardCardData } from "./awards-data";
+import { useT } from "@/lib/i18n/locale-provider";
 
 // mm:2167:9075 (repeated for each of the 6 cards) — square photo (shared
 // asset across all cards, per the design) + wordmark overlay, title,
-// 2-line-clamped description, and a "Chi tiết" link.
-export default function AwardCard({ slug, title, description, nameImage }: AwardCardData) {
+// 2-line-clamped description, and a "Chi tiết" link. Title/description copy
+// comes from the `home` namespace, keyed by slug.
+export default function AwardCard({ slug, nameImage }: AwardCardData) {
+  const t = useT("home");
+  const title = t(`card.${slug}.title`);
+  const description = t(`card.${slug}.description`);
+
   return (
     <Link
-      href={`/awards#${slug}`}
+      href={`/he-thong-giai#${slug}`}
       className="group flex w-full max-w-[336px] flex-col items-start gap-6 transition-transform duration-200 ease-out hover:-translate-y-1"
     >
       {/* mm:I2167:9075;214:1019 */}
@@ -42,7 +50,7 @@ export default function AwardCard({ slug, title, description, nameImage }: Award
         </p>
         {/* mm:I2167:9075;214:1023 */}
         <span className="flex items-center gap-1 py-4 [font-family:var(--font-montserrat)] text-base font-medium leading-6 tracking-[0.15px] text-white transition-colors group-hover:text-[#FFEA9E]">
-          Chi tiết
+          {t("card.details")}
           <IconArrowUpRight width={24} height={24} />
         </span>
       </div>

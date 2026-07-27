@@ -1,5 +1,8 @@
+"use client";
+
 import Image from "next/image";
 import GoogleLoginButton from "./google-login-button";
+import { useT } from "@/lib/i18n/locale-provider";
 
 interface HeroContentProps {
   isLoading: boolean;
@@ -18,6 +21,8 @@ export default function HeroContent({
   errorMessage,
   onLoginClick,
 }: HeroContentProps) {
+  const t = useT("login");
+
   return (
     <main
       className="relative flex flex-1 items-center bg-cover bg-center px-6 py-16 sm:px-16 lg:px-36 lg:py-24"
@@ -55,9 +60,9 @@ export default function HeroContent({
 
         <div className="flex w-full min-w-0 max-w-[496px] flex-col gap-6 pl-4">
           <p className="max-w-[480px] [font-family:var(--font-montserrat)] text-xl font-bold leading-[40px] tracking-[0.5px] text-white">
-            Bắt đầu hành trình của bạn cùng SAA 2025.
+            {t("tagline1")}
             <br />
-            Đăng nhập để khám phá!
+            {t("tagline2")}
           </p>
 
           <div className="flex flex-col gap-3">

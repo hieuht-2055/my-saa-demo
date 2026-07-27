@@ -3,23 +3,20 @@
 import Image from "next/image";
 import { IconChevronDown } from "./icons";
 import { useDismissableMenu } from "./use-dismissable-menu";
-import type { Locale } from "./home-screen";
-
-interface LanguageMenuProps {
-  locale: Locale;
-  onLocaleChange: (locale: Locale) => void;
-}
+import { useLocale } from "@/lib/i18n/locale-provider";
+import { LOCALES, type Locale } from "@/lib/i18n/config";
 
 const LOCALE_LABEL: Record<Locale, string> = { vi: "VN", en: "EN" };
-const LOCALE_OPTIONS: Locale[] = ["vi", "en"];
 
-// mm:I2167:9091;186:1696 — header language selector. Opens on click, closes
-// on outside click / Escape (useDismissableMenu), keyboard-operable.
-export default function LanguageMenu({ locale, onLocaleChange }: LanguageMenuProps) {
+// mm:I2167:9091;186:1696 — header language selector. Reads/writes the active
+// locale from the i18n context; opens on click, closes on outside click /
+// Escape (useDismissableMenu), keyboard-operable.
+export default function LanguageMenu() {
+  const { locale, setLocale } = useLocale();
   const { isOpen, setIsOpen, containerRef } = useDismissableMenu<HTMLDivElement>();
 
   function selectLocale(next: Locale) {
-    onLocaleChange(next);
+    setLocale(next);
     setIsOpen(false);
   }
 
@@ -50,7 +47,7 @@ export default function LanguageMenu({ locale, onLocaleChange }: LanguageMenuPro
           role="listbox"
           className="absolute right-0 top-full z-10 mt-2 w-[108px] overflow-hidden rounded bg-[#0B0F12] shadow-lg"
         >
-          {LOCALE_OPTIONS.map((code) => (
+          {LOCALES.map((code) => (
             <li key={code}>
               <button
                 type="button"

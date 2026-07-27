@@ -3,27 +3,37 @@
 import { useState } from "react";
 import { montserrat, montserratAlternates } from "./fonts";
 import { signInWithGoogle } from "@/lib/supabase/sign-in-with-google";
+import { LocaleProvider, useT } from "@/lib/i18n/locale-provider";
+import type { Locale } from "@/lib/i18n/config";
 import LoginHeader from "./login-header";
 import HeroContent from "./hero-content";
 import LoginFooter from "./login-footer";
 
-export type Locale = "vi" | "en";
-
-const AUTH_ERROR_MESSAGE = "Đăng nhập không thành công. Vui lòng thử lại.";
-
 interface LoginScreenProps {
-  /** Seeded from `/login?error=auth` when the OAuth callback failed. */
-  initialError?: string | null;
+  /** True when redirected from a failed OAuth callback (`/login?error=auth`). */
+  hasAuthError?: boolean;
+  /** Active locale, resolved from the cookie by the route (SSR). */
+  initialLocale?: Locale;
 }
 
 /**
- * Login screen — owns presentational/local state (loading, error, locale)
- * and drives the Supabase Google OAuth flow.
+ * Login screen — provides the i18n context, then delegates to the content
+ * component (which reads translations from that context).
  */
-export default function LoginScreen({ initialError = null }: LoginScreenProps) {
+export default function LoginScreen({ hasAuthError = false, initialLocale }: LoginScreenProps) {
+  return (
+    <LocaleProvider initialLocale={initialLocale}>
+      <LoginScreenContent hasAuthError={hasAuthError} />
+    </LocaleProvider>
+  );
+}
+
+function LoginScreenContent({ hasAuthError }: { hasAuthError: boolean }) {
+  const t = useT("login");
   const [isLoading, setIsLoading] = useState(false);
-  const [errorMessage, setErrorMessage] = useState<string | null>(initialError);
-  const [locale, setLocale] = useState<Locale>("vi");
+  const [errorMessage, setErrorMessage] = useState<string | null>(
+    hasAuthError ? t("authError") : null,
+  );
 
   async function handleGoogleLogin() {
     setIsLoading(true);
@@ -32,21 +42,16 @@ export default function LoginScreen({ initialError = null }: LoginScreenProps) {
       // On success the browser navigates to Google, so control does not return.
       await signInWithGoogle("/");
     } catch {
-      setErrorMessage(AUTH_ERROR_MESSAGE);
+      setErrorMessage(t("authError"));
       setIsLoading(false);
     }
-  }
-
-  function onLocaleChange(next: Locale) {
-    // i18n deferred (see clarifications.md — static VN). Selector is presentational.
-    setLocale(next);
   }
 
   return (
     <div
       className={`${montserrat.variable} ${montserratAlternates.variable} flex min-h-screen w-full flex-col bg-[#00101A]`}
     >
-      <LoginHeader locale={locale} onLocaleChange={onLocaleChange} />
+      <LoginHeader />
       <HeroContent
         isLoading={isLoading}
         errorMessage={errorMessage}

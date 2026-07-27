@@ -1,12 +1,13 @@
 import type { Metadata } from "next";
 import LoginScreen from "./login-screen";
+import { getLocale } from "@/lib/i18n/get-locale";
+import { messages } from "@/lib/i18n/messages";
 
-export const metadata: Metadata = {
-  title: "Đăng nhập | Sun* Annual Awards 2025",
-  description: "Đăng nhập để khám phá Sun* Annual Awards 2025.",
-};
-
-const AUTH_ERROR_MESSAGE = "Đăng nhập không thành công. Vui lòng thử lại.";
+export async function generateMetadata(): Promise<Metadata> {
+  const locale = await getLocale();
+  const m = messages[locale].login;
+  return { title: m.metaTitle, description: m.metaDescription };
+}
 
 // Next.js 16: `searchParams` is async.
 export default async function LoginPage({
@@ -15,7 +16,7 @@ export default async function LoginPage({
   searchParams: Promise<{ error?: string }>;
 }) {
   const { error } = await searchParams;
-  const initialError = error === "auth" ? AUTH_ERROR_MESSAGE : null;
+  const locale = await getLocale();
 
-  return <LoginScreen initialError={initialError} />;
+  return <LoginScreen hasAuthError={error === "auth"} initialLocale={locale} />;
 }
