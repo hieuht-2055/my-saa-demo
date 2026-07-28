@@ -36,10 +36,16 @@ export default function KudosPostCard({
   return (
     <article className="flex w-full max-w-[680px] flex-col items-start gap-4 rounded-3xl bg-[#FFF8E1] px-6 pb-4 pt-6 sm:px-10 sm:pt-10">
       {/* mm:I3127:21871;256:4857 */}
-      <div className="flex w-full flex-col items-center justify-between gap-4 sm:flex-row">
+      <div className="relative flex w-full flex-col items-center justify-between gap-4 sm:flex-row sm:gap-2">
         <SunnerInfo sunner={sender} role="sender" />
-        {/* mm:I3127:21871;256:5147 */}
-        <span role="img" aria-label={t("card.sentAria")} className="shrink-0 text-[#00101A]">
+        {/* mm:I3127:21871;256:5147 — from `sm:` up this is centred OVER the gap
+            rather than sitting in the flex flow: the design gives both identity
+            columns their full 235px and lets the icon overlap them. */}
+        <span
+          role="img"
+          aria-label={t("card.sentAria")}
+          className="shrink-0 text-[#00101A] sm:absolute sm:left-1/2 sm:top-4 sm:-translate-x-1/2"
+        >
           <IconSend width={32} height={32} />
         </span>
         <SunnerInfo sunner={receiver} role="receiver" />

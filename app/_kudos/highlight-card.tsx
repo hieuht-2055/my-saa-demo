@@ -43,11 +43,14 @@ export default function HighlightCard({ post, active, onToggleLike, onCopyLink, 
         active ? "opacity-100" : "pointer-events-none scale-95 opacity-50"
       }`}
     >
-      {/* mm:I2940:13465;335:9442 */}
-      <div className="flex w-full items-start justify-between gap-6">
+      {/* mm:I2940:13465;335:9442 — the row is only 480px wide, so the send icon
+          is centred OVER the gap instead of taking part in the flex flow; that
+          leaves both 235px identity columns intact, exactly as the design lays
+          them out (sender 576→811, receiver 821→1056, icon overlapping). */}
+      <div className="relative flex w-full items-start justify-between gap-2">
         {sender && <SunnerInfo sunner={sender} role="sender" />}
         {/* mm:I2940:13465;335:9444 */}
-        <div className="flex shrink-0 items-start pt-4">
+        <div className="pointer-events-none absolute left-1/2 top-4 -translate-x-1/2">
           <IconSend width={32} height={32} className="text-[#00101A]" />
         </div>
         {receiver && <SunnerInfo sunner={receiver} role="receiver" />}

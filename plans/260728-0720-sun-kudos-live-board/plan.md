@@ -73,7 +73,14 @@ Gates: `tsc --noEmit` clean · `pnpm lint` zero findings in `app/` + `lib/` · `
    `inert`; a 12-press Tab sweep never lands inside an inactive card.
 7. **No Tab trap in the dialogs.** Added one to `dialog-shell.tsx`; a 14-press sweep never escapes.
    The gallery lightbox now also moves focus to its close button on open.
-8. **`onToggleLike` ignored composed kudos** — the source lookup missed `submitted`, so a just-sent
+8. **Receiver column overflowed the highlight card** (reported: "Legend Hero hơi lệch"). The design pins
+   both identity columns at 235px, but the highlight card's info row is only 480px wide
+   (mm:I2940:13465;335:9442) — `235 + 32 icon + 235 + 2×24 gap = 502`. Figma lets the children overlap;
+   flexbox pushed the receiver past the card edge, clipping the name and the badge. The send icon is now
+   centred *over* the gap (absolute from `sm:` up) instead of consuming row width, matching the design's
+   own overlap. Result: post-card columns land at exactly 184→419 / 549→784 (design-identical) and the
+   highlight card's at 232px each, both names on one line, badges fully inside.
+9. **`onToggleLike` ignored composed kudos** — the source lookup missed `submitted`, so a just-sent
    kudos could never take a heart. Also gave the composed kudos an explicit `VIEWER` sender instead of
    inheriting `ALL_KUDOS[0]`'s.
 

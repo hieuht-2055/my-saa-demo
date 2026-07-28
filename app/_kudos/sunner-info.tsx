@@ -37,10 +37,14 @@ export default function SunnerInfo({ sunner, role }: SunnerInfoProps) {
   const profileHref = `/sunner/${sunner.id}`;
 
   return (
-    // The design fixes this column at 235px, but a card renders TWO of them
-    // side by side — held rigid they overflow any viewport under ~530px, so the
-    // width only locks in from `sm:` up and the column flexes below that.
-    <div className="flex min-w-0 flex-1 flex-col items-center justify-center gap-[13px] sm:w-[235px] sm:flex-none">
+    // 235px is a CEILING here, not a fixed width. The design pins this column
+    // at 235 on both cards, but the highlight card's info row is only 480px wide
+    // (mm:I2940:13465;335:9442) while two columns plus the 32px send icon and
+    // two 24px gaps need 502 — Figma lets the children overlap, flexbox cannot,
+    // so a rigid width pushes the receiver out past the card edge. Capping and
+    // letting it flex gives the post card its designed 235 (600px row, room to
+    // spare) and shrinks the highlight card's columns to a clean 200.
+    <div className="flex min-w-0 flex-1 flex-col items-center justify-center gap-[13px] sm:max-w-[235px]">
       {/* mm:...;256:4734 — avatar comes from the Google account photo */}
       <Link href={profileHref} aria-label={t(`card.${role}ProfileAria`)} className="shrink-0">
         <Image
