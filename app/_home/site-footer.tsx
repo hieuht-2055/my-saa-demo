@@ -12,8 +12,13 @@ const FOOTER_LINKS = [
   { href: "/standards", key: "nav.standards" },
 ];
 
+interface SiteFooterProps {
+  /** Current route — the matching footer nav item renders in its active state. */
+  activeHref?: string;
+}
+
 // mm:5001:14800 — footer: logo (home link), nav links, copyright.
-export default function SiteFooter() {
+export default function SiteFooter({ activeHref }: SiteFooterProps = {}) {
   const t = useT("common");
 
   return (
@@ -27,7 +32,12 @@ export default function SiteFooter() {
         {/* mm:I5001:14800;342:1409 */}
         <nav className="flex flex-wrap items-center justify-center gap-4 lg:gap-12">
           {FOOTER_LINKS.map((link) => (
-            <NavLink key={link.href} href={link.href} label={t(link.key)} />
+            <NavLink
+              key={link.href}
+              href={link.href}
+              label={t(link.key)}
+              active={link.href === activeHref}
+            />
           ))}
         </nav>
       </div>
