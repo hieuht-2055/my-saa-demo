@@ -23,6 +23,8 @@ const kudos: Record<string, string> = {
   "card.senderProfileAria": "View the sender's profile",
   "card.receiverProfileAria": "View the recipient's profile",
   "card.sentAria": "Kudos sent",
+  // Fallback name when a kudos was sent anonymously without one (spec G).
+  "card.anonymous": "Anonymous sender",
   "card.like": "Give a heart",
   "card.unlike": "Remove your heart",
   "card.likeOwnDisabled": "You cannot give a heart to your own Kudos",
@@ -75,15 +77,64 @@ const kudos: Record<string, string> = {
   "toast.copyFailed": "Could not copy the link. Please try again.",
   "toast.dismiss": "Dismiss notification",
 
-  "compose.title": "Send a thank-you",
-  "compose.messageLabel": "Your thank-you message",
-  "compose.messagePlaceholder": "Who would you like to thank and recognise today?",
-  "compose.hashtagLabel": "Hashtag",
-  "compose.submit": "Send Kudos",
-  "compose.cancel": "Cancel",
+  "compose.title": "Send a thank-you and recognition to a teammate",
   "compose.close": "Close",
-  "compose.required": "Please write your thank-you message before sending.",
+  "compose.requiredMark": "*",
+
+  "compose.recipientLabel": "Recipient",
+  "compose.recipientPlaceholder": "Search",
+  "compose.recipientDropdownAria": "Recipient suggestions",
+
+  "compose.toolbarBoldAria": "Bold",
+  "compose.toolbarItalicAria": "Italic",
+  "compose.toolbarStrikethroughAria": "Strikethrough",
+  "compose.toolbarNumberListAria": "Numbered list",
+  "compose.toolbarLinkAria": "Insert link",
+  "compose.toolbarQuoteAria": "Quote",
+  "compose.linkPromptLabel": "Enter a link URL",
+  "compose.linkPromptPlaceholder": "https://example.com",
+  "compose.linkPromptOpenNewTab": "Open in a new tab",
+  "compose.linkPromptConfirm": "Insert link",
+
+  "compose.contentPlaceholder": "Write your thank-you and recognition for a teammate here!",
+  "compose.mentionHint": "You can type “@ + name” to mention a colleague",
+  "compose.mentionDropdownAria": "Mention suggestions",
+  "compose.contentCounterAria": "Characters typed",
+
+  // mm:1688:10448 — "Danh hiệu", the one required field with no spec row.
+  "compose.titleLabel": "Title",
+  "compose.titlePlaceholder": "Award your teammate a title",
+  "compose.titleHint":
+    "For example: The one who motivates me.\nThe title is shown as your Kudos heading.",
+  "compose.titleDropdownAria": "Title options",
+  "compose.hashtagLabel": "Hashtag",
+  "compose.maxCount": "Up to 5",
+  "compose.hashtagDropdownAria": "Hashtag list",
+  "compose.hashtagRemoveAria": "Remove hashtag",
+
+  "compose.imageLabel": "Image",
+  "compose.imageRemoveAria": "Remove image",
+
+  "compose.anonymousLabel": "Send this thank-you and recognition anonymously",
+  "compose.anonymousNameLabel": "Anonymous display name",
+  "compose.anonymousNamePlaceholder": "Enter the name you want to display",
+
+  "compose.cancel": "Cancel",
+  "compose.submit": "Send",
+  "compose.submitting": "Sending...",
   "compose.sent": "Your thank-you has been sent!",
+
+  "compose.errors.required": "This field is required.",
+  "compose.errors.max": "You've reached the maximum allowed.",
+  "compose.errors.type": "This file type isn't supported.",
+
+  // Server-action failures (app/_kudos/kudos-actions.ts). Shown in the toast.
+  "action.signedOut": "Your session has expired. Please sign in again.",
+  "action.invalid": "Please fill in every required field.",
+  "action.tooManyHashtags": "Up to 5 hashtags.",
+  "action.selfKudos": "You cannot send a Kudos to yourself.",
+  "action.createFailed": "Could not send the Kudos. Please try again.",
+  "action.likeFailed": "Could not save your heart. Please try again.",
 
   "secretBox.title": "Secret Box",
   "secretBox.remaining": "Secret Boxes still closed:",

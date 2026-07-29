@@ -26,6 +26,8 @@ const kudos: Record<string, string> = {
   "card.senderProfileAria": "Xem trang cá nhân người gửi",
   "card.receiverProfileAria": "Xem trang cá nhân người nhận",
   "card.sentAria": "Đã gửi lời cảm ơn",
+  // Fallback name when a kudos was sent anonymously without one (spec G).
+  "card.anonymous": "Người gửi ẩn danh",
   "card.like": "Thả tim",
   "card.unlike": "Bỏ thả tim",
   "card.likeOwnDisabled": "Bạn không thể thả tim cho Kudos của chính mình",
@@ -85,16 +87,74 @@ const kudos: Record<string, string> = {
   "toast.copyFailed": "Không sao chép được link. Vui lòng thử lại.",
   "toast.dismiss": "Đóng thông báo",
 
-  // A.1 — compose dialog (behaviour specified in A.1; drawn on its own frame)
-  "compose.title": "Gửi lời cảm ơn",
-  "compose.messageLabel": "Lời cảm ơn của bạn",
-  "compose.messagePlaceholder": "Hôm nay, bạn muốn gửi lời cảm ơn và ghi nhận đến ai?",
-  "compose.hashtagLabel": "Hashtag",
-  "compose.submit": "Gửi Kudos",
-  "compose.cancel": "Huỷ",
+  // A / B / C / D / E / F / G / H — Viết Kudo compose dialog (mm:520:11602)
+  "compose.title": "Gửi lời cám ơn và ghi nhận đến đồng đội",
   "compose.close": "Đóng",
-  "compose.required": "Vui lòng nhập lời cảm ơn trước khi gửi.",
+  "compose.requiredMark": "*",
+
+  // B.1 / B.2 — recipient picker
+  "compose.recipientLabel": "Người nhận",
+  "compose.recipientPlaceholder": "Tìm kiếm",
+  "compose.recipientDropdownAria": "Danh sách gợi ý người nhận",
+
+  // C.1–C.6 — editor toolbar
+  "compose.toolbarBoldAria": "Định dạng in đậm",
+  "compose.toolbarItalicAria": "Định dạng in nghiêng",
+  "compose.toolbarStrikethroughAria": "Định dạng gạch ngang",
+  "compose.toolbarNumberListAria": "Định dạng danh sách đánh số",
+  "compose.toolbarLinkAria": "Chèn liên kết",
+  "compose.toolbarQuoteAria": "Định dạng trích dẫn",
+  "compose.linkPromptLabel": "Nhập URL liên kết",
+  "compose.linkPromptPlaceholder": "https://example.com",
+  "compose.linkPromptOpenNewTab": "Mở trong tab mới",
+  "compose.linkPromptConfirm": "Chèn liên kết",
+
+  // D / D.1 — editor body
+  "compose.contentPlaceholder": "Hãy gửi gắm lời cám ơn và ghi nhận đến đồng đội tại đây nhé!",
+  "compose.mentionHint": "Bạn có thể “@ + tên” để nhắc tới đồng nghiệp khác",
+  "compose.mentionDropdownAria": "Danh sách gợi ý để nhắc tên",
+  "compose.contentCounterAria": "Số ký tự đã nhập",
+
+  // mm:1688:10448 — "Danh hiệu", the one required field with no spec row. Copy is
+  // taken verbatim from the design nodes.
+  "compose.titleLabel": "Danh hiệu",
+  "compose.titlePlaceholder": "Dành tặng một danh hiệu cho đồng đội",
+  "compose.titleHint":
+    "Ví dụ: Người truyền động lực cho tôi.\nDanh hiệu sẽ hiển thị làm tiêu đề Kudos của bạn.",
+  "compose.titleDropdownAria": "Danh sách danh hiệu",
+  // E / E.1 / E.2 — hashtag
+  "compose.hashtagLabel": "Hashtag",
+  "compose.maxCount": "Tối đa 5",
+  "compose.hashtagDropdownAria": "Danh sách hashtag",
+  "compose.hashtagRemoveAria": "Xóa hashtag",
+
+  // F / F.1 / F.5 — image attachments
+  "compose.imageLabel": "Image",
+  "compose.imageRemoveAria": "Xóa ảnh",
+
+  // G — send anonymously
+  "compose.anonymousLabel": "Gửi lời cám ơn và ghi nhận ẩn danh",
+  "compose.anonymousNameLabel": "Tên hiển thị ẩn danh",
+  "compose.anonymousNamePlaceholder": "Nhập tên bạn muốn hiển thị",
+
+  // H.1 / H.2 — footer
+  "compose.cancel": "Hủy",
+  "compose.submit": "Gửi",
+  "compose.submitting": "Đang gửi...",
   "compose.sent": "Đã gửi lời cảm ơn của bạn!",
+
+  // KudosComposeApi.errors — generic per error-type copy (see kudos-compose-types.ts)
+  "compose.errors.required": "Trường này là bắt buộc, vui lòng nhập.",
+  "compose.errors.max": "Đã đạt số lượng tối đa cho phép.",
+  "compose.errors.type": "Định dạng tệp không được hỗ trợ.",
+
+  // Server-action failures (app/_kudos/kudos-actions.ts). Shown in the toast.
+  "action.signedOut": "Phiên đăng nhập đã hết. Vui lòng đăng nhập lại.",
+  "action.invalid": "Vui lòng điền đầy đủ các trường bắt buộc.",
+  "action.tooManyHashtags": "Tối đa 5 hashtag.",
+  "action.selfKudos": "Bạn không thể gửi Kudos cho chính mình.",
+  "action.createFailed": "Không gửi được Kudos. Vui lòng thử lại.",
+  "action.likeFailed": "Không thả tim được. Vui lòng thử lại.",
 
   // D.1.8 — Secret Box dialog (behaviour specified in D.1.8)
   "secretBox.title": "Secret Box",

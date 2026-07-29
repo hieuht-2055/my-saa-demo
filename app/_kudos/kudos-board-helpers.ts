@@ -1,4 +1,5 @@
-import { findSunner, type KudosPost } from "./kudos-data";
+import type { KudosPost } from "./kudos-data";
+import { findSunner } from "./kudos-sunners";
 
 /** How many feed cards the infinite scroll reveals per step. */
 export const PAGE_SIZE = 4;

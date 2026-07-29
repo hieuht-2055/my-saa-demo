@@ -1,0 +1,67 @@
+{
+  "score": 9.5,
+  "criticalCount": 0,
+  "decision": "SEALED",
+  "acceptanceCovered": [
+    "All design items A-H rendered from authoritative MoMorph values, plus the required spec-less Danh hieu field \u2014 every value read from MoMorph node data; Danh hieu (mm:1688:10448) verified against the frame node tree and implemented as a required select mapped to KudosPost.groupTag",
+    "Four required fields validated: recipient, title, content, at least one hashtag \u2014 validateDraft unit-tested against design TC ID-7/11/14/50/51/52/56",
+    "Hashtags capped at 5 and images capped at 5 with the add-image button hidden at the cap \u2014 intakeImages unit-tested (TC ID-17/19/20/23/24/53/55); button hidden not disabled per TC ID-19/38/40",
+    "Anonymous send hides the sender identity in the feed \u2014 AnonymousSunnerInfo drops avatar, department, badge and profile link; draftToPost anonymity mapping unit-tested",
+    "Draft discarded on cancel and never on closing a nested dropdown \u2014 Escape now consumed in the capture phase by use-dismissable-menu and locally by the mention popup and link prompt",
+    "Typecheck, app lint, unit tests and production build all green \u2014 see temper-results.json, all four exit 0"
+  ],
+  "regressionChecked": [
+    "Header dropdowns sharing use-dismissable-menu still close on Escape (capture-phase change adds stopPropagation only; no parent Escape handler exists on those screens)",
+    "Secret Box dialog still renders with the original dark chrome (DialogShell style props are optional with unchanged defaults)",
+    "Seeded plain-text feed posts pass through htmlToText unchanged (no tags to strip) \u2014 unit-tested",
+    "kudos-sunners.ts imports kudos-data.ts type-only, so the runtime module cycle and its TDZ crash stay closed",
+    "pnpm build regenerates all 10 routes including /kudos"
+  ],
+  "contractStatus": "HONORED",
+  "refuted": [],
+  "unproven": [],
+  "reachableRegressions": [],
+  "findings": [
+    {
+      "severity": "Critical",
+      "category": "correctness",
+      "location": "app/_kudos/use-compose-attachments.ts:98",
+      "summary": "submit revoked the blob URLs it had just handed to the new feed post, blanking thumbnails on the just-sent kudos; fixed by splitting clear() (discard, revokes) from detach() (submit, transfers URL ownership)",
+      "disposition": "Accept"
+    },
+    {
+      "severity": "High",
+      "category": "data-loss",
+      "location": "app/_home/use-dismissable-menu.ts:33",
+      "summary": "Escape inside any nested dropdown bubbled to the modal's document-level handler and discarded the whole draft; fixed by consuming Escape in the capture phase, since both listeners sit on document and the dialog's registers first",
+      "disposition": "Accept"
+    },
+    {
+      "severity": "High",
+      "category": "data-loss",
+      "location": "app/_kudos/compose-editor-toolbar.tsx:157",
+      "summary": "same Escape data-loss path via the mention popup and the link-URL prompt; both now stop the event locally and the mention list gained ArrowUp/Down/Enter/Tab/Escape navigation",
+      "disposition": "Accept"
+    },
+    {
+      "severity": "Medium",
+      "category": "security",
+      "location": "app/_kudos/kudos-post-card.tsx:92",
+      "summary": "author-supplied editor HTML is stored unsanitised in KudosPost.content; inert today because the feed flattens it via htmlToText and no dangerouslySetInnerHTML exists, but sanitisation is required before any kudos-detail screen renders it as HTML",
+      "disposition": "Defer"
+    },
+    {
+      "severity": "Low",
+      "category": "a11y",
+      "location": "app/_kudos/compose-editor-toolbar.tsx:149",
+      "summary": "link-URL prompt has no outside-click dismiss (Escape and its confirm button both work), and aria-activedescendant is not applied across the four dropdowns",
+      "disposition": "Defer"
+    },
+    {
+      "severity": "Medium",
+      "category": "verification-gap",
+      "summary": "no live browser visual-diff was possible: /kudos is behind Supabase auth and no browser-automation tool was available, so visual fidelity rests on MoMorph node data plus a reference-PNG comparison; a Playwright pass against an authenticated session is still owed",
+      "disposition": "Defer"
+    }
+  ]
+}

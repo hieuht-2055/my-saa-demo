@@ -4,13 +4,14 @@ import { useState } from "react";
 import { signOut } from "@/app/auth/actions";
 import { LocaleProvider, useT } from "@/lib/i18n/locale-provider";
 import type { Locale } from "@/lib/i18n/config";
+import type { KudosPost } from "./kudos-data";
 import { montserrat, montserratAlternates } from "@/app/_home/fonts";
 import SiteFooter from "../_home/site-footer";
 import SiteHeader from "../_home/site-header";
 import WidgetButton from "../_home/widget-button";
 import ComposeDialog from "./compose-dialog";
-import FilterDropdown from "./filter-dropdown";
 import HighlightCarousel from "./highlight-carousel";
+import KudosFilterBar from "./kudos-filter-bar";
 import KudosFeed from "./kudos-feed";
 import KudosHero from "./kudos-hero";
 import KudosToast from "./kudos-toast";
@@ -19,17 +20,13 @@ import SecretBoxDialog from "./secret-box-dialog";
 import SectionHeading from "./section-heading";
 import SpotlightBoard from "./spotlight-board";
 import StatsPanel from "./stats-panel";
-import {
-  DEPARTMENTS,
-  HASHTAG_OPTIONS,
-  PRIZE_RECIPIENTS,
-  SPOTLIGHT_TICKER,
-  TOTAL_KUDOS,
-  VIEWER_STATS,
-} from "./kudos-data";
+import { PRIZE_RECIPIENTS, TOTAL_KUDOS, VIEWER_STATS } from "./kudos-data";
+import { SPOTLIGHT_TICKER } from "./kudos-spotlight-data";
 import { useKudosBoard } from "./use-kudos-board";
 
 interface KudosScreenProps {
+  /** The board's kudos, read from Postgres by the route (newest first). */
+  posts: KudosPost[];
   isAuthenticated: boolean;
   isAdmin: boolean;
   userEmail: string | null;
@@ -49,9 +46,9 @@ const SHELL = "mx-auto w-full max-w-[1440px] px-6 sm:px-16 lg:px-36";
  * owns every behaviour (filters, hearts, clipboard, paging, dialogs) and the
  * section components below stay purely presentational.
  */
-function KudosBoard() {
+function KudosBoard({ posts }: { posts: KudosPost[] }) {
   const t = useT("kudos");
-  const board = useKudosBoard();
+  const board = useKudosBoard(posts);
 
   return (
     <>
@@ -72,20 +69,12 @@ function KudosBoard() {
             subtitle={t("section.subtitle")}
             title={t("section.highlight")}
             action={
-              <div className="flex items-center gap-4">
-                <FilterDropdown
-                  label={t("filter.hashtag")}
-                  options={HASHTAG_OPTIONS}
-                  value={board.filters.hashtag}
-                  onChange={board.filters.onHashtagChange}
-                />
-                <FilterDropdown
-                  label={t("filter.department")}
-                  options={DEPARTMENTS}
-                  value={board.filters.department}
-                  onChange={board.filters.onDepartmentChange}
-                />
-              </div>
+              <KudosFilterBar
+                hashtag={board.filters.hashtag}
+                department={board.filters.department}
+                onHashtagChange={board.filters.onHashtagChange}
+                onDepartmentChange={board.filters.onDepartmentChange}
+              />
             }
           />
         </div>
@@ -113,8 +102,10 @@ function KudosBoard() {
         />
       </section>
 
-      {/* mm:2940:13475 (C) + 2940:13488 (D) — ALL KUDOS feed beside the sidebar */}
-      <section className={`${SHELL} flex flex-col gap-10`}>
+      {/* mm:2940:13475 (C) + 2940:13488 (D) — ALL KUDOS feed beside the sidebar.
+          The id is the post-send scroll target: the compose pill sits up in the
+          hero, so without it a new kudos lands well below the fold. */}
+      <section id="all-kudos" className={`${SHELL} flex flex-col gap-10`}>
         <SectionHeading subtitle={t("section.subtitle")} title={t("section.all")} />
         <div className="flex flex-col gap-8 lg:flex-row lg:items-start lg:gap-12">
           <div className="min-w-0 flex-1">
@@ -137,7 +128,7 @@ function KudosBoard() {
       <ComposeDialog
         open={board.dialogs.isComposeOpen}
         onClose={board.dialogs.closeCompose}
-        onSubmit={board.dialogs.onComposeSubmit}
+        compose={board.dialogs.compose}
       />
       <SecretBoxDialog
         open={board.dialogs.isSecretBoxOpen}
@@ -154,6 +145,7 @@ function KudosBoard() {
  * itself lives in `KudosBoard` so it can call `useT` inside the provider.
  */
 export default function KudosScreen({
+  posts,
   isAuthenticated,
   isAdmin,
   userEmail,
@@ -187,7 +179,7 @@ export default function KudosScreen({
         />
 
         <main className="flex flex-1 flex-col gap-24 pb-24 lg:gap-[120px]">
-          <KudosBoard />
+          <KudosBoard posts={posts} />
         </main>
 
         <WidgetButton />

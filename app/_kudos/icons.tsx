@@ -127,6 +127,10 @@ export function IconArrowUpRight(props: SVGProps<SVGSVGElement>) {
   );
 }
 
+// Compose-dialog-only icons (Bold/Italic/Strikethrough/NumberList/Quote/Plus/
+// CloseTiny/Cancel) live in `compose-icons.tsx` — keeping this shared file
+// under the project's 200-line cap.
+
 // Dialog dismiss control (no Figma node — the compose/Secret Box dialogs are
 // specified as behaviour in B.1/D.1.8 but drawn on separate screens).
 export function IconClose(props: SVGProps<SVGSVGElement>) {

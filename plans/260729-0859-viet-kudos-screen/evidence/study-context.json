@@ -1,0 +1,35 @@
+{
+  "task": "Implement the Vi\u1ebft Kudo compose modal from MoMorph screen ihQ26W78P2 (26 specs, 57 test cases) on the Sun* Kudos board.",
+  "mode": "auto",
+  "acceptanceCriteria": [
+    "All design items A-H rendered from authoritative MoMorph values, plus the required spec-less Danh hieu field",
+    "Four required fields validated: recipient, title, content, at least one hashtag",
+    "Hashtags capped at 5 and images capped at 5 with the add-image button hidden at the cap",
+    "Anonymous send hides the sender identity in the feed",
+    "Draft discarded on cancel and never on closing a nested dropdown",
+    "Typecheck, app lint, unit tests and production build all green"
+  ],
+  "touchpoints": [
+    "app/_kudos/compose-*.tsx",
+    "app/_kudos/use-kudos-compose.ts",
+    "app/_kudos/use-compose-attachments.ts",
+    "app/_kudos/kudos-compose-*.ts",
+    "app/_kudos/use-kudos-board.ts",
+    "app/_kudos/kudos-board-helpers.ts",
+    "app/_kudos/kudos-data.ts",
+    "app/_kudos/kudos-sunners.ts",
+    "app/_kudos/kudos-post-card.tsx",
+    "app/_kudos/kudos-gallery.tsx",
+    "app/_home/use-dismissable-menu.ts",
+    "lib/i18n/messages/{vi,en}/kudos.ts"
+  ],
+  "blastRadius": [
+    "Kudos feed rendering (anonymous sender branch, rich-text flattening, blob previews)",
+    "Header dropdowns in app/_home which share use-dismissable-menu (Escape now capture-phase)",
+    "Secret Box dialog which shares DialogShell (new optional style props, default unchanged)",
+    "pnpm test newly exists and is scoped to app/** and lib/**"
+  ],
+  "contracts": [
+    "app/_kudos/kudos-compose-types.ts KudosComposeApi between the dialog and the behaviour hook"
+  ]
+}

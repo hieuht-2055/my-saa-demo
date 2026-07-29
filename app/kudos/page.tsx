@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import KudosScreen from "../_kudos/kudos-screen";
 import { getCurrentUser } from "@/lib/supabase/current-user";
 import { getLocale } from "@/lib/i18n/get-locale";
+import { getKudosFeed } from "../_kudos/kudos-queries";
 
 export const metadata: Metadata = {
   title: "Sun* Kudos | Sun* Annual Awards 2025",
@@ -17,6 +18,9 @@ export const metadata: Metadata = {
 export default async function KudosPage() {
   const { isAuthenticated, isAdmin, email } = await getCurrentUser();
   const locale = await getLocale();
+  // Read the board from Postgres on every request, so a reload rebuilds the feed
+  // and its hearts from the database instead of from client state.
+  const { posts } = await getKudosFeed();
 
   return (
     <KudosScreen
@@ -24,6 +28,7 @@ export default async function KudosPage() {
       isAdmin={isAdmin}
       userEmail={email}
       initialLocale={locale}
+      posts={posts}
     />
   );
 }

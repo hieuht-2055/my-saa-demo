@@ -6,6 +6,8 @@
 // no `kudos` table in Supabase yet (auth-only project), so this module is the
 // board's data source until the API lands.
 
+import { RECEIVER, SENDERS } from "./kudos-sunners";
+
 /** Rank badge artwork shipped in `public/kudos/` (mm:...;3106:17694). */
 export type HeroBadge = "new-hero" | "rising-hero" | "super-hero" | "legend-hero";
 
@@ -38,6 +40,14 @@ export interface KudosPost {
   likedByViewer: boolean;
   /** True when the viewer sent it — the heart is disabled (spec C.4.1). */
   sentByViewer: boolean;
+  /** True when the sender chose "gửi ẩn danh" — the card hides their identity. */
+  anonymous?: boolean;
+  /**
+   * The display name typed alongside that choice (Viết Kudo spec G). Optional
+   * even when `anonymous` is set: the card falls back to a translated label, so
+   * the stored data never carries UI copy.
+   */
+  anonymousName?: string;
 }
 
 export interface PrizeRecipient {
@@ -72,42 +82,12 @@ export interface ViewerStats {
   secretBoxUnopened: number;
 }
 
-const SENDERS: Sunner[] = [
-  { id: "s1", name: "Huỳnh Dương Xuân Nhật", department: "CEVC10", avatar: "/kudos/avatar-sender.png", badge: "new-hero", stars: 1 },
-  { id: "s2", name: "Huỳnh Dương Xuân Nhật", department: "CEVC10", avatar: "/kudos/avatar-sender.png", badge: "rising-hero", stars: 2 },
-  { id: "s3", name: "Huỳnh Dương Xuân Nhật", department: "CEVC10", avatar: "/kudos/avatar-sender.png", badge: "super-hero", stars: 3 },
-];
-
-const RECEIVER: Sunner = {
-  id: "r1",
-  name: "Huỳnh Dương Xuân",
-  department: "CEVC10",
-  avatar: "/kudos/avatar-receiver.png",
-  badge: "legend-hero",
-  stars: 3,
-};
-
-export const SUNNERS: Sunner[] = [...SENDERS, RECEIVER];
-
-/**
- * The signed-in Sunner, as far as this mock layer models one. Kudos composed on
- * the board are attributed here; once auth-linked profiles exist this is the
- * seam that reads the real session user.
- */
-export const VIEWER: Sunner = SENDERS[0];
-
-export function findSunner(id: string): Sunner | undefined {
-  return SUNNERS.find((s) => s.id === id);
-}
-
 const KUDOS_MESSAGE =
   "Cảm ơn người em bình thường nhưng phi thường :D Cảm ơn sự chăm chỉ, cẩn mẫn của em đã tạo động lực rất nhiều cho team, để luôn nhắc mình luôn phải nỗ lực hơn nữa trong công việc. <3 và cuộc sống";
 
 const GALLERY = Array.from({ length: 5 }, () => "/kudos/sample-photo.png");
 
 const HASHTAGS = ["Dedicated", "Inspring", "Dedicated", "Inspring", "Dedicated", "Inspring"];
-
-export const DEPARTMENTS = ["CEVC10", "CECV11", "Marketing", "HR", "BSD"] as const;
 
 /** Distinct hashtags offered by the B.1.1 filter dropdown. */
 export const HASHTAG_OPTIONS = ["Dedicated", "Inspring", "Teamwork", "Ownership", "Creative"] as const;
@@ -157,45 +137,5 @@ export const PRIZE_RECIPIENTS: PrizeRecipient[] = Array.from({ length: 10 }, (_,
 /** Total kudos in the system, shown as the Spotlight headline (spec B.7.1). */
 export const TOTAL_KUDOS = 388;
 
-const SPOTLIGHT_NAMES = [
-  "Đỗ hoàng Hiệp",
-  "Dương thùy An",
-  "Mai phượng Thùy",
-  "Nguyễn Văn Quy",
-  "Lê Kiều Trang",
-  "Nguyễn Bá Chúc",
-  "Nguyễn Hoàng Linh",
-];
-
-/**
- * Deterministic 32-bit hash → [0,1). The cloud must lay out identically on the
- * server and the client, so `Math.random()` is off the table (hydration).
- */
-function seeded(seed: number): number {
-  let x = (seed * 1103515245 + 12345) & 0x7fffffff;
-  x ^= x >>> 15;
-  return ((x * 2654435761) & 0x7fffffff) / 0x7fffffff;
-}
-
-export const SPOTLIGHT_NODES: SpotlightNode[] = Array.from({ length: 120 }, (_, i) => {
-  const name = SPOTLIGHT_NAMES[i % SPOTLIGHT_NAMES.length];
-  const r = seeded(i * 7 + 1);
-  const r2 = seeded(i * 13 + 5);
-  const r3 = seeded(i * 29 + 11);
-  return {
-    id: `sp-${i + 1}`,
-    name,
-    kudosId: ALL_KUDOS[i % ALL_KUDOS.length].id,
-    receivedAt: "08:30PM",
-    xPct: 2 + r * 94,
-    yPct: 4 + r2 * 90,
-    fontSize: r3 > 0.93 ? 20 : r3 > 0.78 ? 14 : 10,
-  };
-});
-
-/** Bottom-left activity ticker inside the Spotlight canvas. */
-export const SPOTLIGHT_TICKER = Array.from({ length: 6 }, (_, i) => ({
-  id: `tk-${i + 1}`,
-  time: "08:30PM",
-  name: "Nguyễn Bá Chúc",
-}));
+// The cloud's 120 positioned nodes and the activity ticker are generated from
+// `SPOTLIGHT_NAMES` in `kudos-spotlight-data.ts`.

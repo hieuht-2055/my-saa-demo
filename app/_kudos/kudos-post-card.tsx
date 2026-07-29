@@ -1,9 +1,11 @@
 "use client";
 
-import SunnerInfo from "./sunner-info";
+import SunnerInfo, { AnonymousSunnerInfo } from "./sunner-info";
 import KudosGallery from "./kudos-gallery";
 import { IconSend, IconPen, IconHeart, IconLink } from "./icons";
-import { findSunner, type KudosPost } from "./kudos-data";
+import type { KudosPost } from "./kudos-data";
+import { findSunner } from "./kudos-sunners";
+import { htmlToText } from "./kudos-compose-draft";
 import { useT } from "@/lib/i18n/locale-provider";
 
 interface KudosPostCardProps {
@@ -29,7 +31,9 @@ export default function KudosPostCard({
   const t = useT("kudos");
   const sender = findSunner(post.senderId);
   const receiver = findSunner(post.receiverId);
-  if (!sender || !receiver) return null;
+  // An anonymous kudos has no sender to render, but it still has a receiver — so
+  // only the receiver is load-bearing for the card.
+  if (!receiver || (!post.anonymous && !sender)) return null;
 
   const likeLabel = post.likedByViewer ? t("card.unlike") : t("card.like");
 
@@ -37,7 +41,11 @@ export default function KudosPostCard({
     <article className="flex w-full max-w-[680px] flex-col items-start gap-4 rounded-3xl bg-[#FFF8E1] px-6 pb-4 pt-6 sm:px-10 sm:pt-10">
       {/* mm:I3127:21871;256:4857 */}
       <div className="relative flex w-full flex-col items-center justify-between gap-4 sm:flex-row sm:gap-2">
-        <SunnerInfo sunner={sender} role="sender" />
+        {post.anonymous || !sender ? (
+          <AnonymousSunnerInfo name={post.anonymousName?.trim() || t("card.anonymous")} />
+        ) : (
+          <SunnerInfo sunner={sender} role="sender" />
+        )}
         {/* mm:I3127:21871;256:5147 — from `sm:` up this is centred OVER the gap
             rather than sitting in the flex flow: the design gives both identity
             columns their full 235px and lets the icon overlap them. */}
@@ -74,8 +82,14 @@ export default function KudosPostCard({
 
         {/* mm:...;662:11382 -> C.3.5_Content */}
         <div className="w-full rounded-xl border border-[#FFEA9E] bg-[rgba(255,234,158,0.4)] px-6 py-4">
+          {/* The compose editor stores rich text (Viết Kudo spec C), but this card
+              is drawn as plain clamped text — so the markup is flattened rather
+              than injected. That also keeps `dangerouslySetInnerHTML` out of the
+              feed: sanitising author-supplied HTML belongs with the detail screen
+              that actually needs the formatting. Seeded plain text passes through
+              untouched. */}
           <p className="line-clamp-5 text-justify [font-family:var(--font-montserrat)] text-xl font-bold leading-8 text-[#00101A]">
-            {post.content}
+            {htmlToText(post.content)}
           </p>
         </div>
 

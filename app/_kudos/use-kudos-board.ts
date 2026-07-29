@@ -1,15 +1,14 @@
 "use client";
 
-import { useCallback, useMemo, useState } from "react";
-import { ALL_KUDOS, HIGHLIGHT_KUDOS, VIEWER, type KudosPost } from "./kudos-data";
-import {
-  PAGE_SIZE,
-  applyLikes,
-  formatPostedAt,
-  matchesFilters,
-  type LikeOverride,
-} from "./kudos-board-helpers";
+import { useCallback, useMemo, useState, useTransition } from "react";
+import type { KudosPost } from "./kudos-data";
+import { PAGE_SIZE, applyLikes, matchesFilters } from "./kudos-board-helpers";
 import { useSunnerSearch } from "./use-sunner-search";
+import { useKudosCompose } from "./use-kudos-compose";
+import type { KudosDraft } from "./kudos-compose-types";
+import { pickHighlights } from "./kudos-db-mapper";
+import { createKudos } from "./kudos-actions";
+import { useKudosLikes } from "./use-kudos-likes";
 
 /**
  * All Kudos-board behaviour in one place: filters, the carousel cursor, hearts,
@@ -17,14 +16,16 @@ import { useSunnerSearch } from "./use-sunner-search";
  * The board is presentational below this hook — every child receives plain data
  * and callbacks, which keeps the design components free of business rules.
  */
-export function useKudosBoard() {
+export function useKudosBoard(posts: KudosPost[]) {
   const [hashtagFilter, setHashtagFilter] = useState<string | null>(null);
   const [departmentFilter, setDepartmentFilter] = useState<string | null>(null);
   const [highlightIndex, setHighlightIndex] = useState(0);
-  const [likes, setLikes] = useState<Record<string, LikeOverride>>({});
   const [visibleCount, setVisibleCount] = useState(PAGE_SIZE);
-  const [submitted, setSubmitted] = useState<KudosPost[]>([]);
   const [toastKey, setToastKey] = useState<string | null>(null);
+  // Server actions run inside a transition so a send never blocks the click.
+  const [, startTransition] = useTransition();
+  const onActionError = useCallback((errorKey: string) => setToastKey(errorKey), []);
+  const { overrides: likes, onToggleLike } = useKudosLikes(posts, onActionError);
   const [isComposeOpen, setComposeOpen] = useState(false);
   const [isSecretBoxOpen, setSecretBoxOpen] = useState(false);
   const search = useSunnerSearch();
@@ -35,15 +36,16 @@ export function useKudosBoard() {
     [hashtagFilter, departmentFilter],
   );
 
-  const highlightPosts = useMemo(
-    () => applyLikes(HIGHLIGHT_KUDOS.filter(keep), likes),
-    [keep, likes],
+  // Both sections read the same rows, newest-first from the `/kudos` Server
+  // Component. `likes` holds only optimistic overrides on top, so a reload drops
+  // them and the server's own counts show through.
+  const feedPosts = useMemo(
+    () => applyLikes(posts.filter(keep), likes),
+    [keep, likes, posts],
   );
 
-  const feedPosts = useMemo(
-    () => applyLikes([...submitted, ...ALL_KUDOS].filter(keep), likes),
-    [keep, likes, submitted],
-  );
+  /** Spec B.2 — the carousel is the five most-hearted kudos, not the newest five. */
+  const highlightPosts = useMemo(() => pickHighlights(feedPosts), [feedPosts]);
 
   /** Selecting any filter resets the carousel and the feed to page 1 (spec B). */
   const resetPaging = useCallback(() => {
@@ -71,27 +73,6 @@ export function useKudosBoard() {
    * Spec C.4.1 — one heart per user per kudos, and a sender may never heart
    * their own. Toggling off gives the heart back.
    */
-  const onToggleLike = useCallback((kudosId: string) => {
-    // `submitted` must be in the lookup too, or a just-composed kudos would
-    // silently fall through and never accept a heart.
-    const source = [...HIGHLIGHT_KUDOS, ...ALL_KUDOS, ...submitted].find(
-      (post) => post.id === kudosId,
-    );
-    if (!source || source.sentByViewer) return;
-    setLikes((prev) => {
-      const current = prev[kudosId] ?? {
-        count: source.likeCount,
-        liked: source.likedByViewer,
-      };
-      return {
-        ...prev,
-        [kudosId]: {
-          liked: !current.liked,
-          count: current.count + (current.liked ? -1 : 1),
-        },
-      };
-    });
-  }, [submitted]);
 
   const onCopyLink = useCallback(async (kudosId: string) => {
     const url = `${window.location.origin}/kudos/${kudosId}`;
@@ -110,42 +91,54 @@ export function useKudosBoard() {
     [onHashtagChange],
   );
 
-  const onComposeSubmit = useCallback((content: string, hashtags: string[]) => {
-    setSubmitted((prev) => [
-      {
-        // The recipient picker lives on the compose dialog's own MoMorph frame
-        // and is out of this screen's scope, so the seed post supplies the
-        // receiver while the sender is the viewer.
-        ...ALL_KUDOS[0],
-        id: `new-${prev.length + 1}`,
-        senderId: VIEWER.id,
-        content,
-        hashtags,
-        images: [],
-        likeCount: 0,
-        likedByViewer: false,
-        sentByViewer: true,
-        postedAt: formatPostedAt(new Date()),
-      },
-      ...prev,
-    ]);
+  /**
+   * mm:520:11602 (Viết Kudo) — persists the draft, then lets `revalidatePath` in
+   * the action deliver the new row back through the Server Component. Nothing is
+   * held in client state, so the sent kudos survives a reload.
+   */
+  const onComposeSubmit = useCallback((draft: KudosDraft) => {
+    if (!draft.recipient) return;
+    const input = {
+      recipientId: draft.recipient.id,
+      title: draft.title,
+      content: draft.content,
+      hashtags: draft.hashtags,
+      anonymous: draft.anonymous,
+      anonymousName: draft.anonymousName,
+    };
+
     setComposeOpen(false);
     setVisibleCount((n) => n + 1);
     setToastKey("compose.sent");
+
+    startTransition(async () => {
+      const result = await createKudos(input);
+      if (!result.ok) setToastKey(result.errorKey ?? "action.createFailed");
+    });
+    // The new kudos is the first card in ALL KUDOS, but that section sits below
+    // the carousel and the whole Spotlight canvas — while the compose pill is up
+    // in the hero. Without this the send reads as a no-op: the toast fires and
+    // nothing on screen changes. Same move the Sunner search makes (spec B.7.3).
+    document.getElementById("all-kudos")?.scrollIntoView({ behavior: "smooth" });
   }, []);
 
-  /**
-   * These six MUST be memoised, not inline arrows. Each one lands in a
-   * consumer's effect dependency array, so a fresh identity on every board
-   * render re-runs those effects: the feed's IntersectionObserver would
-   * re-observe and burst-load every page at once, the dialog's focus effect
-   * would yank focus off whatever the user is typing, and the toast's
-   * auto-dismiss timer would restart forever and outlive its 3s window.
-   */
+  const compose = useKudosCompose(onComposeSubmit);
+  // Pulled out so `closeCompose` can depend on the stable callback rather than on
+  // the API object, which is a fresh identity every render.
+  const resetCompose = compose.reset;
+
+  // These MUST be memoised, not inline arrows: each lands in a consumer's effect
+  // deps, so a fresh identity per render would make the feed's
+  // IntersectionObserver burst-load every page, the dialog steal focus mid-typing,
+  // and the toast timer outlive its 3s window.
   const onLoadMore = useCallback(() => setVisibleCount((n) => n + PAGE_SIZE), []);
   const dismissToast = useCallback(() => setToastKey(null), []);
   const openCompose = useCallback(() => setComposeOpen(true), []);
-  const closeCompose = useCallback(() => setComposeOpen(false), []);
+  /** Spec H.1 — "Hủy" discards the draft as well as closing the modal. */
+  const closeCompose = useCallback(() => {
+    resetCompose();
+    setComposeOpen(false);
+  }, [resetCompose]);
   const openSecretBox = useCallback(() => setSecretBoxOpen(true), []);
   const closeSecretBox = useCallback(() => setSecretBoxOpen(false), []);
 
@@ -174,7 +167,8 @@ export function useKudosBoard() {
       isComposeOpen,
       openCompose,
       closeCompose,
-      onComposeSubmit,
+      /** The compose modal's whole behaviour surface (mm:520:11602). */
+      compose,
       isSecretBoxOpen,
       openSecretBox,
       closeSecretBox,

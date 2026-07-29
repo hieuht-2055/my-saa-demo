@@ -1,7 +1,7 @@
 "use client";
 
 import { useCallback, useMemo, useState } from "react";
-import { SPOTLIGHT_NODES } from "./kudos-data";
+import { SPOTLIGHT_NODES } from "./kudos-spotlight-data";
 import { SEARCH_MAX, matchesName } from "./kudos-board-helpers";
 
 /**

@@ -10,6 +10,36 @@ interface KudosGalleryProps {
 }
 
 /**
+ * Attachments composed in this session are `blob:` object URLs (Viết Kudo spec F).
+ * `next/image` is built for paths and remote URLs it can fetch and optimise — an
+ * object URL is neither, and it is already local, already the right bytes, and
+ * gone on reload. So previews render as a plain `<img>` while everything the
+ * design ships from `public/` keeps the optimiser.
+ */
+function isLocalPreview(src: string): boolean {
+  return src.startsWith("blob:") || src.startsWith("data:");
+}
+
+/** One thumbnail or full-size frame, routed by source kind. */
+function GalleryImage({
+  src,
+  alt,
+  size,
+  className,
+}: {
+  src: string;
+  alt: string;
+  size: number;
+  className: string;
+}) {
+  if (isLocalPreview(src)) {
+    // eslint-disable-next-line @next/next/no-img-element -- object URLs cannot be optimised; see isLocalPreview
+    return <img src={src} alt={alt} width={size} height={size} className={className} />;
+  }
+  return <Image src={src} alt={alt} width={size} height={size} className={className} />;
+}
+
+/**
  * mm:I3127:21871;256:5176 (C.3.6) — up to 5 square 88×88 thumbnails in a row.
  * Clicking one opens it full-size in a lightweight modal overlay: Escape and
  * a backdrop click both dismiss it, and focus returns to the thumbnail that
@@ -56,11 +86,10 @@ export default function KudosGallery({ images }: KudosGalleryProps) {
           aria-label={t("card.openImageAria")}
           className="h-[88px] w-[88px] shrink-0 overflow-hidden rounded-[18px] border border-[#998C5F] bg-white transition-transform duration-200 hover:scale-105 focus-visible:outline focus-visible:outline-2 focus-visible:outline-[#FFEA9E]"
         >
-          <Image
+          <GalleryImage
             src={src}
             alt={t("card.imageAlt")}
-            width={88}
-            height={88}
+            size={88}
             className="h-full w-full object-cover"
           />
         </button>
@@ -86,11 +115,10 @@ export default function KudosGallery({ images }: KudosGalleryProps) {
             >
               <IconClose width={32} height={32} />
             </button>
-            <Image
+            <GalleryImage
               src={shown[openIndex]}
               alt={t("card.imageAlt")}
-              width={800}
-              height={800}
+              size={800}
               className="max-h-[90vh] w-auto rounded-lg object-contain"
             />
           </div>

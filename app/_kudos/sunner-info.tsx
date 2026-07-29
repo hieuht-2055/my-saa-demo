@@ -20,6 +20,37 @@ interface SunnerInfoProps {
 }
 
 /**
+ * The sender column when the kudos was sent anonymously (Viết Kudo spec G). It
+ * mirrors `SunnerInfo`'s geometry so the card's identity row keeps its balance,
+ * but carries no avatar, no profile link, no department and no badge — every one
+ * of those would give the sender away.
+ *
+ * The compose frame specifies the choice, not this consequence: no anonymous card
+ * state is drawn anywhere in the design. So the placeholder mark is built from
+ * the board's own tokens rather than invented artwork.
+ */
+export function AnonymousSunnerInfo({ name }: { name: string }) {
+  return (
+    <div className="flex min-w-0 flex-1 flex-col items-center justify-center gap-[13px] sm:max-w-[235px]">
+      <span
+        aria-hidden
+        className="flex h-16 w-16 shrink-0 items-center justify-center rounded-full border border-[#FFEA9E] bg-[rgba(255,234,158,0.4)] [font-family:var(--font-montserrat)] text-2xl font-bold leading-8 text-[#00101A]"
+      >
+        ?
+      </span>
+      <div className="flex w-full flex-col items-start gap-0.5">
+        <span
+          title={name}
+          className="w-full text-center [font-family:var(--font-montserrat)] text-base font-bold leading-6 tracking-[0.15px] text-[#00101A]"
+        >
+          {name}
+        </span>
+      </div>
+    </div>
+  );
+}
+
+/**
  * mm:I3127:21871;256:4858 (C.3.1) / mm:I2940:13465;335:9443 (B.3.1–B.3.2) —
  * the sender/receiver identity block shared by the Highlight card and the feed
  * post card: avatar over name, then "department · rank badge".

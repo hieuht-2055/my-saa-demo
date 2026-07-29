@@ -3,7 +3,8 @@
 import Link from "next/link";
 import { IconArrowUpRight, IconHeart, IconLink, IconSend } from "./icons";
 import SunnerInfo from "./sunner-info";
-import { findSunner, type KudosPost } from "./kudos-data";
+import type { KudosPost } from "./kudos-data";
+import { findSunner } from "./kudos-sunners";
 import { useT } from "@/lib/i18n/locale-provider";
 
 interface HighlightCardProps {
